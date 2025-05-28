@@ -1,34 +1,46 @@
 pipeline {
-    agent any
+    agent any  // Use any available agent
 
     tools {
-        gradle 'Gradle-8'  // Make sure this Gradle version is configured in Jenkins Global Tools
+        gradle 'Gradle'  // Ensure this matches the name configured in Jenkins
+        jdk 'JDK'
     }
-
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/theashishshah/gradle.git'
+                git branch: 'master', url: 'https://github.com/theashishshah/gradle.git'
             }
         }
 
         stage('Build') {
             steps {
-                sh './gradlew build'
+                sh 'gradle build'  // Run Maven build
             }
         }
 
-        stage('Test') {
+       stage('Test') {
+           steps {
+               sh 'gradle test'  // Run unit tests
+           }
+        }
+
+              
+        stage('Run Application') {
             steps {
-                sh './gradlew test'
+                // Start the JAR application
+                sh 'gradle run'
             }
         }
 
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
-            }
+        
+    }
+
+    post {
+        success {
+            echo 'Build and deployment successful!'
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }
-
